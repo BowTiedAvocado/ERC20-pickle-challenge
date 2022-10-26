@@ -1,1 +1,1 @@
-# simple-erc20
+# Simple-ERC20
