@@ -5,4 +5,4 @@ Inspired by bowtiedpickle's twitter challenge
 
 ## Disclaimer
 
-This is a project I'm building as practice, I cannot assure this contract to be 100% secure.
+This is a project I'm building as practice, I cannot assure this code to be bug free or exploit proof.
