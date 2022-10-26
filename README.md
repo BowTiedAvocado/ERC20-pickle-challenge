@@ -1,1 +1,1 @@
-# Simple-ERC20
+# ERC20 Pickle Challenge
