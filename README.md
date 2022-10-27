@@ -1,7 +1,9 @@
 # ERC20 Pickle Challenge
 
 Simple ERC20 compliant token with a fixed supply and a burn mechanism.
-Inspired by bowtiedpickle's twitter challenge
+Inspired by bowtiedpickle's twitter challenge.
+
+I am also using this project to learn how to use git.
 
 ## Disclaimer
 
