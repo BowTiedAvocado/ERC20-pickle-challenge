@@ -9,7 +9,8 @@ contract ERC20 {
   uint8 public tokenDecimals; // Decimals the token uses for display purposes
   address public immutable masterAddress; // Token master address, has special powers
 
-  mapping(address => uint256) balances;
+  mapping(address => uint256) private balances;
+  mapping(address => mapping(address => uint256)) private allowances;
 
   constructor() {
     tokenName = "Avocado Coin";
@@ -40,16 +41,62 @@ contract ERC20 {
     return balances[_owner];
   }
 
-  function transfer(address _to, uint256 _value) public {
-    require(balances[msg.sender] > _value);
+  function transfer(address _to, uint256 _value) public returns (bool success) {
+    require(balances[msg.sender] >= _value, "Insufficient token balance");
 
     balances[msg.sender] -= _value;
     balances[_to] += _value;
+
+    emit Transfer(msg.sender, _to, _value);
+
+    return true;
   }
 
-  function transferFrom() public {}
+  function transferFrom(
+    address _from,
+    address _to,
+    uint256 _value
+  ) public returns (bool success) {
+    require(balances[msg.sender] >= _value, "Insufficient token balance");
+    require(
+      allowances[_from][msg.sender] >= _value,
+      "Insufficient token allowance"
+    );
 
-  function approve() public {}
+    balances[_from] -= _value;
+    balances[_to] += _value;
 
-  function allowance() public {}
+    emit Transfer(_from, _to, _value);
+
+    return true;
+  }
+
+  function approve(address _spender, uint256 _value)
+    public
+    returns (bool success)
+  {
+    require(_spender != address(0), "Cannot approve to the zero address");
+
+    allowances[msg.sender][_spender] = _value;
+
+    emit Approval(msg.sender, _spender, _value);
+
+    return true;
+  }
+
+  function allowance(address _owner, address _spender)
+    public
+    view
+    returns (uint256 remaining)
+  {
+    return allowances[_owner][_spender];
+  }
+
+  event Transfer(address indexed _from, address indexed _to, uint256 _value);
+
+  event Approval(
+    address indexed _owner,
+    address indexed _spender,
+    uint256 _value
+  );
 }
