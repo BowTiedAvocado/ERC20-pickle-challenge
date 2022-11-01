@@ -5,9 +5,9 @@ pragma solidity ^0.8.13;
 contract ERC20 {
   string public tokenName; // Token name
   string public tokenSymbol; // Token symbol
-  uint256 public immutable tokenSupply; // Supply of tokens
+  uint256 public tokenSupply; // Supply of tokens
   uint8 public tokenDecimals; // Decimals the token uses for display purposes
-  address public immutable masterAddress; // Token master address, has special powers
+  address public immutable masterAddress; // Token master address, gets all the supply
 
   mapping(address => uint256) private balances;
   mapping(address => mapping(address => uint256)) private allowances;
@@ -20,6 +20,16 @@ contract ERC20 {
     masterAddress = msg.sender;
     balances[masterAddress] = tokenSupply;
   }
+
+  event Transfer(address indexed _from, address indexed _to, uint256 _value);
+
+  event Approval(
+    address indexed _owner,
+    address indexed _spender,
+    uint256 _value
+  );
+
+  event Burn(uint256 _value);
 
   function name() public view returns (string memory) {
     return tokenName;
@@ -41,8 +51,16 @@ contract ERC20 {
     return balances[_owner];
   }
 
+  function allowance(address _owner, address _spender)
+    public
+    view
+    returns (uint256 remaining)
+  {
+    return allowances[_owner][_spender];
+  }
+
   function transfer(address _to, uint256 _value) public returns (bool success) {
-    require(balances[msg.sender] >= _value, "Insufficient token balance");
+    require(balanceOf(msg.sender) >= _value, "Insufficient token balance");
 
     balances[msg.sender] -= _value;
     balances[_to] += _value;
@@ -57,9 +75,9 @@ contract ERC20 {
     address _to,
     uint256 _value
   ) public returns (bool success) {
-    require(balances[msg.sender] >= _value, "Insufficient token balance");
+    require(balanceOf(msg.sender) >= _value, "Insufficient token balance");
     require(
-      allowances[_from][msg.sender] >= _value,
+      allowance(_from, msg.sender) >= _value,
       "Insufficient token allowance"
     );
 
@@ -84,19 +102,14 @@ contract ERC20 {
     return true;
   }
 
-  function allowance(address _owner, address _spender)
-    public
-    view
-    returns (uint256 remaining)
-  {
-    return allowances[_owner][_spender];
+  function burn(uint256 _value) public returns (bool success) {
+    require(balanceOf(msg.sender) >= _value, "Insufficient token balance");
+
+    balances[msg.sender] -= _value;
+    tokenSupply -= _value;
+
+    emit Burn(_value);
+
+    return true;
   }
-
-  event Transfer(address indexed _from, address indexed _to, uint256 _value);
-
-  event Approval(
-    address indexed _owner,
-    address indexed _spender,
-    uint256 _value
-  );
 }
