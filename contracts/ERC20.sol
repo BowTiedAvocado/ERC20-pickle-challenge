@@ -9,8 +9,8 @@ contract ERC20 {
   uint8 public tokenDecimals; // Decimals the token uses for display purposes
   address public immutable masterAddress; // Token master address, gets all the supply
 
-  mapping(address => uint256) private balances;
-  mapping(address => mapping(address => uint256)) private allowances;
+  mapping(address => uint256) public balances;
+  mapping(address => mapping(address => uint256)) public allowances;
 
   constructor() {
     tokenName = "Avocado Coin";
@@ -61,6 +61,7 @@ contract ERC20 {
 
   function transfer(address _to, uint256 _value) public returns (bool success) {
     require(balanceOf(msg.sender) >= _value, "Insufficient token balance");
+    require(_to != address(0), "Can't transfer tokens to the zero address");
 
     balances[msg.sender] -= _value;
     balances[_to] += _value;
@@ -75,12 +76,14 @@ contract ERC20 {
     address _to,
     uint256 _value
   ) public returns (bool success) {
-    require(balanceOf(msg.sender) >= _value, "Insufficient token balance");
+    require(balanceOf(_from) >= _value, "Insufficient token balance");
     require(
       allowance(_from, msg.sender) >= _value,
       "Insufficient token allowance"
     );
+    require(_to != address(0), "Can't transfer tokens to the zero address");
 
+    allowances[_from][msg.sender] -= _value;
     balances[_from] -= _value;
     balances[_to] += _value;
 
